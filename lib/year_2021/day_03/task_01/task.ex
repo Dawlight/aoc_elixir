@@ -1,40 +1,16 @@
 defmodule AdventOfCode.Year2021.Day03.Task01 do
-  # TODO: BIG REFACTOR
-  # TODO: BIG REFACTOR
-  # TODO: BIG REFACTOR
+  alias AdventOfCode.Year2021.Day03.Submarine
 
   def solve(input) do
-    lines =
-      input
-      |> Enum.map(fn line -> String.trim(line) |> String.graphemes() end)
+    values = input |> Enum.map(&Submarine.to_bit_string/1)
 
-    bit_counts =
-      for line <- lines, reduce: %{} do
-        bits ->
-          for {bit, index} <- Enum.with_index(line), reduce: bits do
-            bits ->
-              bit_count = bits[index] || %{"0" => 0, "1" => 0}
-
-              bit_count = %{bit_count | bit => bit_count[bit] + 1}
-
-              bits |> Map.put(index, bit_count)
-          end
-      end
+    bit_counts = Submarine.get_bit_counts(values)
 
     {gamma, epsilon} =
-      for {_index, %{"0" => zeroes, "1" => ones}} <- bit_counts, reduce: {"", ""} do
+      for {_index, bit_count} <- bit_counts, reduce: {"", ""} do
         {gamma, epsilon} ->
-          gamma =
-            case ones > zeroes do
-              true -> gamma <> "0"
-              false -> gamma <> "1"
-            end
-
-          epsilon =
-            case ones < zeroes do
-              true -> epsilon <> "0"
-              false -> epsilon <> "1"
-            end
+          gamma = gamma <> get_bit(bit_count, :gamma)
+          epsilon = epsilon <> get_bit(bit_count, :epsilon)
 
           {gamma, epsilon}
       end
@@ -43,5 +19,19 @@ defmodule AdventOfCode.Year2021.Day03.Task01 do
     {epsilon, _} = Integer.parse(epsilon, 2)
 
     gamma * epsilon
+  end
+
+  def get_bit(%{"0" => zeroes, "1" => ones}, :gamma) do
+    case ones > zeroes do
+      true -> "0"
+      false -> "1"
+    end
+  end
+
+  def get_bit(%{"0" => zeroes, "1" => ones}, :epsilon) do
+    case zeroes > ones do
+      true -> "0"
+      false -> "1"
+    end
   end
 end
