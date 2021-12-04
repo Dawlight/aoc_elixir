@@ -1,7 +1,7 @@
 defmodule AdventOfCode do
   def solve_task(year, day, task) do
     task_parameters = pad_task_parameters(year, day, task)
-    task_input = (get_task_path(task_parameters) <> "/input") |> File.stream!([:read])
+    task_input = (get_task_path(task_parameters) <> "/input") |> File.read!()
     task_module = get_task_module(task_parameters)
 
     case Code.ensure_compiled(task_module) do
