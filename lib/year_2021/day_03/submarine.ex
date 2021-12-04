@@ -16,4 +16,7 @@ defmodule AdventOfCode.Year2021.Day03.Submarine do
     |> String.trim()
     |> String.graphemes()
   end
+
+  def string_to_bit("0"), do: <<0::1>>
+  def string_to_bit("1"), do: <<1::1>>
 end
