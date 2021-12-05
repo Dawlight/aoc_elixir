@@ -1,6 +1,6 @@
 # 🎄 Advent of Code - Elilockir 🎄
 
-Advent of Code from a (at o)
+Advent of Code from a (at the time of writing) new Elixir convert
 
 ## Progression
 
