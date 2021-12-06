@@ -15,10 +15,7 @@ defmodule AdventOfCode.Year2021.Day06.Submarine do
   end
 
   def simulate_day(fish_by_age) do
-    fish_by_age =
-      for {age, fish} <- fish_by_age, reduce: %{} do
-        fish_by_age -> fish_by_age |> Map.put(age - 1, fish)
-      end
+    fish_by_age = for {age, fish} <- fish_by_age, into: %{}, do: {age - 1, fish}
 
     {new_fish, fish_by_age} = fish_by_age |> Map.pop(-1, 0)
     newly_pregnant_fish = new_fish
