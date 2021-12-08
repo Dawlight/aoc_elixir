@@ -4,6 +4,6 @@ defmodule AdventOfCode.Year2021.Day08.Task01 do
   }
 
   def solve(input) do
-    input
+    Submarine.parse_input(input)
   end
 end
