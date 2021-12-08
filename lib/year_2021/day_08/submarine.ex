@@ -1,38 +1,22 @@
 defmodule AdventOfCode.Year2021.Day08.Submarine do
-  @default_lookup %{
-    0 => nil,
-    1 => nil,
-    2 => nil,
-    3 => nil,
-    4 => nil,
-    5 => nil,
-    6 => nil,
-    7 => nil,
-    8 => nil,
-    9 => nil
-  }
-
   @all_characters ["a", "b", "c", "d", "e", "f", "g"]
 
   def parse_input(input) do
-    data =
-      input
-      |> String.split("\n")
-      |> Enum.map(fn line ->
-        String.split(line, " | ")
-        |> Enum.map(fn chunk ->
-          String.split(chunk, " ")
-          |> Enum.map(fn combo -> MapSet.new(String.graphemes(combo)) end)
-        end)
+    input
+    |> String.split("\n")
+    |> Enum.map(fn line ->
+      String.split(line, " | ")
+      |> Enum.map(fn chunk ->
+        String.split(chunk, " ")
+        |> Enum.map(fn combo -> MapSet.new(String.graphemes(combo)) end)
       end)
-
-    calculate_sum(data)
+    end)
   end
 
-  def calculate_sum(data) do
+  def to_numbers(data) do
     baked_lines =
       for [patterns, output] <- data do
-        lookup = get_lookup(patterns) |> IO.inspect(label: "LOOKUP")
+        lookup = get_lookup(patterns)
 
         for out <- output do
           Enum.find(lookup, fn {_number, pattern} -> MapSet.equal?(pattern, out) end)
@@ -47,13 +31,10 @@ defmodule AdventOfCode.Year2021.Day08.Submarine do
       end
     end
     |> Enum.map(fn number_string -> String.to_integer(number_string) end)
-    |> Enum.sum()
   end
 
   def get_lookup(patterns) do
-    lookup = @default_lookup
-
-    for {number, _} <- lookup, into: %{} do
+    for number <- 0..9, into: %{} do
       {number, lookup_pattern(patterns, number)}
     end
   end

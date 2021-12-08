@@ -4,6 +4,8 @@ defmodule AdventOfCode.Year2021.Day08.Task02 do
   }
 
   def solve(input) do
-    input
+    Submarine.parse_input(input)
+    |> Submarine.to_numbers()
+    |> Enum.sum()
   end
 end
