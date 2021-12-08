@@ -16,13 +16,12 @@ defmodule AdventOfCode.Year2021.Day08.Submarine do
   def to_numbers(data) do
     baked_lines =
       for [patterns, output] <- data do
-        lookup = get_lookup(patterns)
+        lookup = generate_lookup(patterns)
 
         for out <- output do
           Enum.find(lookup, fn {_number, pattern} -> MapSet.equal?(pattern, out) end)
         end
       end
-      |> IO.inspect(label: "WOW")
 
     for baked_line <- baked_lines do
       for {number, _} <- baked_line, reduce: "" do
@@ -33,7 +32,7 @@ defmodule AdventOfCode.Year2021.Day08.Submarine do
     |> Enum.map(fn number_string -> String.to_integer(number_string) end)
   end
 
-  def get_lookup(patterns) do
+  def generate_lookup(patterns) do
     for number <- 0..9, into: %{} do
       {number, lookup_pattern(patterns, number)}
     end
