@@ -7,8 +7,8 @@ defmodule AdventOfCode.Year2021.Day09.Task02 do
     matrix = Submarine.parse_input(input)
 
     Submarine.get_basins(matrix)
-    |> Enum.map(fn basin -> length(basin) end)
-    |> Enum.sort_by(fn x -> x end, :desc)
+    |> Enum.map(&length/1)
+    |> Enum.sort_by(& &1, :desc)
     |> Enum.slice(0..2)
     |> Enum.product()
   end

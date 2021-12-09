@@ -16,16 +16,20 @@ defmodule AdventOfCode.Year2021.Day09.Submarine do
   end
 
   def get_low_points(matrix) do
+    {max_x, max_y} = get_max_coords(matrix)
+
     matrix
-    |> Enum.filter(fn {coords, height} ->
-      get_neighbours(matrix, coords, [])
+    |> Enum.filter(fn {_, height} = point ->
+      get_neighbours(matrix, point, max_x, max_y)
+      |> Enum.to_list()
+      |> Map.new()
       |> Map.values()
       |> Enum.all?(fn neighbour_height -> neighbour_height > height end)
     end)
     |> Map.new()
   end
 
-  def get_neighbours(matrix, {x, y}, exclude) do
+  def get_max_coords(matrix) do
     {{max_x, _}, _} =
       matrix
       |> Enum.max_by(fn {{x1, _y}, _} -> x1 end, fn -> nil end)
@@ -34,48 +38,71 @@ defmodule AdventOfCode.Year2021.Day09.Submarine do
       matrix
       |> Enum.max_by(fn {{_, y1}, _} -> y1 end, fn -> nil end)
 
-    north = {x, y + 1}
-    east = {x + 1, y}
-    south = {x, y - 1}
-    west = {x - 1, y}
+    {max_x, max_y}
+  end
 
-    directions =
-      [north, east, south, west]
-      |> Enum.filter(fn direction -> !Enum.member?(exclude, direction) end)
+  def get_neighbours(matrix, {{x, y}, _height}, max_x, max_y) do
+    cardinal_coords = [{x, y + 1}, {x + 1, y}, {x, y - 1}, {x - 1, y}]
 
-    for direction <- directions, reduce: %{} do
-      neighbour_coords ->
-        case direction do
-          {x, y} when x < 0 or y < 0 or x > max_x or y > max_y ->
-            neighbour_coords
+    valid_coords =
+      Enum.filter(cardinal_coords, fn {x, y} ->
+        x >= 0 and y >= 0 and
+          x <= max_x and y <= max_y
+      end)
 
-          coord ->
-            Map.put(neighbour_coords, coord, Map.get(matrix, coord, nil))
-        end
-    end
+    neighbours = for coord <- valid_coords, do: {coord, Map.get(matrix, coord, nil)}
+
+    MapSet.new(neighbours)
   end
 
   def get_basins(matrix) do
-    starting_points = get_low_points(matrix) |> Map.keys()
+    starting_points = get_low_points(matrix)
 
-    Enum.map(starting_points, fn coord -> traverse_basin(matrix, coord, [coord], 0) end)
-    |> Enum.map(fn thing -> thing |> Enum.map(fn thing2 -> matrix[thing2] end) end)
+    for point <- starting_points,
+        do: traverse_basin(matrix, point)
   end
 
-  # defp traverse_basin(_, _, _, 2), do: []
+  defp traverse_basin(matrix, starting_point) do
+    {max_x, max_y} = get_max_coords(matrix)
 
-  defp traverse_basin(matrix, coord, visited_coords, depth) do
-    neighbours =
-      get_neighbours(matrix, coord, visited_coords)
-      |> Map.keys()
-      |> Enum.filter(fn n_coord -> matrix[n_coord] >= matrix[coord] && matrix[n_coord] != 9 end)
+    Enum.reduce_while(
+      Stream.cycle(1..1),
+      %{visited: [starting_point], stack: [starting_point]},
+      fn _number, acc ->
+        %{visited: visited, stack: stack} = acc
 
-    acc =
-      for neighbour <- neighbours, reduce: [] do
-        acc ->
-          acc ++ traverse_basin(matrix, neighbour, [coord | visited_coords], depth + 1)
+        [current_point | stack] = stack
+
+        neighbours = get_unvisited_neighbours(matrix, current_point, visited, max_x, max_y)
+
+        stack =
+          for neighbour <- neighbours, reduce: stack do
+            stack -> [neighbour | stack]
+          end
+
+        visited = visited ++ MapSet.to_list(neighbours)
+
+        case stack do
+          [] -> {:halt, visited}
+          _ -> {:cont, %{visited: visited, stack: stack}}
+        end
       end
+    )
+  end
 
-    Enum.uniq([coord] ++ acc ++ neighbours)
+  defp get_unvisited_neighbours(matrix, point, visited, max_x, max_y) do
+    get_neighbours(matrix, point, max_x, max_y)
+    |> MapSet.to_list()
+    |> Enum.filter(fn neighbour -> is_valid_neighbour(point, neighbour, visited) end)
+    |> MapSet.new()
+  end
+
+  defp is_valid_neighbour(point, neighbour, visited) do
+    {_, height} = point
+    {_, neighbour_height} = neighbour
+
+    neighbour_height >= height &&
+      neighbour_height != 9 &&
+      !Enum.member?(visited, neighbour)
   end
 end
