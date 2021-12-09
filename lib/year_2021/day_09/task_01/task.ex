@@ -5,7 +5,9 @@ defmodule AdventOfCode.Year2021.Day09.Task01 do
 
   def solve(input) do
     matrix = Submarine.parse_input(input)
-    low_points = Submarine.get_low_points(matrix) |> IO.inspect(label: "LOW POINTS")
-    Enum.map(low_points, fn {_, height} -> height + 1 end) |> Enum.sum()
+
+    Submarine.get_low_points(matrix)
+    |> Enum.map(fn {_, height} -> height + 1 end)
+    |> Enum.sum()
   end
 end
