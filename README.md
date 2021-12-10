@@ -13,7 +13,7 @@ Advent of Code from a (at the time of writing) new Elixir convert :santa:
 :star::star: [Day 7](/lib/year_2021/day_07) \
 :star::star: [Day 8](/lib/year_2021/day_08) \
 :star::star: [Day 9](/lib/year_2021/day_09) \
-:lock::lock: Day 10 \
+:star::star: [Day 10](/lib/year_2021/day_10) \
 :lock::lock: Day 11 \
 :lock::lock: Day 12 \
 :lock::lock: Day 13 \
