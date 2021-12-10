@@ -10,7 +10,7 @@ defmodule AdventOfCode.Year2021.Day10.Submarine do
   end
 
   def parse(chunk) do
-    do_parse(chunk, [], 0)
+    do_parse(chunk, [], 1)
   end
 
   defp do_parse([], [], _) do
