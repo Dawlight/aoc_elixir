@@ -5,6 +5,10 @@ defmodule AdventOfCode.Year2021.Day12.Submarine do
     |> Enum.map(&String.split(&1, "-"))
   end
 
+  def is_small_cave?(cave) do
+    cave == String.downcase(cave)
+  end
+
   def count_paths(node) do
     Enum.reduce(node, 0, fn {_key, value}, count ->
       case value do
@@ -40,9 +44,5 @@ defmodule AdventOfCode.Year2021.Day12.Submarine do
           true -> connections
         end
     end
-  end
-
-  def is_small_cave?(cave) do
-    cave == String.downcase(cave)
   end
 end
