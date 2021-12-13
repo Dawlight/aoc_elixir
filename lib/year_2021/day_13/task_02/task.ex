@@ -4,6 +4,10 @@ defmodule AdventOfCode.Year2021.Day13.Task02 do
   }
 
   def solve(input) do
-    Submarine.parse_input(input)
+    {matrix, folds} = Submarine.parse_input(input)
+
+    matrix
+    |> Submarine.fold(folds)
+    |> Submarine.inspect_matrix()
   end
 end
