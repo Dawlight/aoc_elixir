@@ -25,9 +25,53 @@ defmodule AdventOfCode.Year2021.Day16.Task01 do
     [sum: transformed] |> calculate()
   end
 
-  #
-  # Operations by size
-  #
+  def calculate([{:sum, values}]) do
+    for value <- values, reduce: 0 do
+      sum ->
+        sum + calculate([value])
+    end
+  end
+
+  def calculate([{:product, values}]) do
+    for value <- values, reduce: 1 do
+      sum ->
+        sum * calculate([value])
+    end
+  end
+
+  def calculate([{:minimum, values}]) do
+    values |> Enum.map(fn value -> calculate([value]) end) |> Enum.min()
+  end
+
+  def calculate([{:maximum, values}]) do
+    values |> Enum.map(fn value -> calculate([value]) end) |> Enum.max()
+  end
+
+  def calculate([{:greater, values}]) do
+    [first, second | _rest] = values
+    first = calculate([first])
+    second = calculate([second])
+
+    if first > second, do: 1, else: 0
+  end
+
+  def calculate([{:less, values}]) do
+    [first, second | _rest] = values
+    first = calculate([first])
+    second = calculate([second])
+
+    if first < second, do: 1, else: 0
+  end
+
+  def calculate([{:equal, values}]) do
+    [first, second | _rest] = values
+    first = calculate([first])
+    second = calculate([second])
+
+    if first == second, do: 1, else: 0
+  end
+
+  def calculate([{:literal, value, _}]), do: value
 
   def transform(operations), do: transform(operations, [])
 
@@ -66,9 +110,6 @@ defmodule AdventOfCode.Year2021.Day16.Task01 do
         {_, :size, size, _} -> take_size(operations, size)
         {_, _, _} = _literal -> {[], operations}
       end
-
-    # taken |> IO.inspect(label: "TAKEN")
-    # buffer |> IO.inspect(label: "BUFFER")
 
     buffer = buffer ++ taken
 
@@ -188,57 +229,4 @@ defmodule AdventOfCode.Year2021.Day16.Task01 do
   def convert("D" <> rest, buffer), do: convert(rest, ["1101" | buffer])
   def convert("E" <> rest, buffer), do: convert(rest, ["1110" | buffer])
   def convert("F" <> rest, buffer), do: convert(rest, ["1111" | buffer])
-
-  def calculate([{:sum, values}]) do
-    for value <- values, reduce: 0 do
-      sum ->
-        sum + calculate([value])
-    end
-  end
-
-  def calculate([{:product, values}]) do
-    for value <- values, reduce: 1 do
-      sum ->
-        sum * calculate([value])
-    end
-  end
-
-  def calculate([{:minimum, values}]) do
-    values |> Enum.map(fn value -> calculate([value]) end) |> Enum.min()
-  end
-
-  def calculate([{:maximum, values}]) do
-    values |> Enum.map(fn value -> calculate([value]) end) |> Enum.max()
-  end
-
-  def calculate([{:greater, values}]) do
-    [first, second | _rest] = values
-    first = calculate([first])
-    second = calculate([second])
-
-    if first > second, do: 1, else: 0
-  end
-
-  def calculate([{:less, values}]) do
-    [first, second | _rest] = values
-    first = calculate([first])
-    second = calculate([second])
-
-    if first < second, do: 1, else: 0
-  end
-
-  def calculate([{:equal, values}]) do
-    [first, second | _rest] = values
-    first = calculate([first])
-    second = calculate([second])
-
-    if first == second, do: 1, else: 0
-  end
-
-  def calculate([{:literal, value, _}]), do: value
-
-  def calculate(lol) do
-    lol |> IO.inspect(label: "GRAPH")
-    lol |> Enum.count() |> IO.inspect(label: "COUNT")
-  end
 end
