@@ -15,31 +15,32 @@ defmodule AdventOfCode.Year2021.Day15.Task01 do
       Enum.find(matrix, fn {coords, _} -> coords == {x_max, y_max} end)
       |> IO.inspect(label: "GOAL")
 
-    search(matrix, [{start_coord, {risk, 0}}], goal, [])
+    search(matrix, [{start_coord, risk, 0}], goal, [])
     # |> Enum.reduce(0, fn {_, risk}, acc -> acc + risk end)
   end
 
   defp search(_matrix, [], _goal, [first | _visited]), do: first
 
   defp search(matrix, queue, {goal_coord, _} = goal, visited) do
-    [current | queue] = queue
+    [current | queue] = queue |> IO.inspect(label: "QUEUE")
 
     case current do
-      {^goal_coord, {0, total}} ->
+      {^goal_coord, 0, total} ->
         total
 
       _ ->
         visited =
           case current do
-            {coords, {0, _}} -> [coords | visited]
+            {coords, 0, _} -> [coords | visited]
             _ -> visited
           end
 
-        # IO.getn("Continue? ")
+        IO.getn("Continue? ")
 
         neighbours =
           get_neighbours(matrix, current)
           |> Enum.filter(fn {coord, _} -> !Enum.member?(visited, coord) end)
+          |> IO.inspect(label: "")
 
         queue = queue ++ neighbours
 
@@ -122,7 +123,7 @@ defmodule AdventOfCode.Year2021.Day15.Task01 do
     matrix
   end
 
-  def get_neighbours(matrix, {{x, y}, {0, risk}}) do
+  def get_neighbours(matrix, {{x, y}, 0, risk}) do
     x_max =
       Enum.map(matrix, fn {{x, _y}, _} -> x end)
       |> Enum.max()
@@ -143,9 +144,8 @@ defmodule AdventOfCode.Year2021.Day15.Task01 do
       end)
 
     Enum.filter(matrix, fn {octo_coord, _} -> Enum.member?(valid_coords, octo_coord) end)
-    |> Enum.map(fn {coord, start_risk} -> {coord, {start_risk, matrix[{x, y}] + risk}} end)
+    |> Enum.map(fn {coord, start_risk} -> {coord, start_risk, start_risk + risk} end)
   end
 
-  def get_neighbours(_matrix, {coord, {risk, accumulated_risk}}),
-    do: [{coord, {risk - 1, accumulated_risk}}]
+  def get_neighbours(_matrix, {coord, risk,}), do: [{coord, risk - 1}]
 end

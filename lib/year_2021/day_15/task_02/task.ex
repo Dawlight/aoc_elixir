@@ -5,6 +5,8 @@ defmodule AdventOfCode.Year2021.Day15.Task02 do
 
   @repeats 5
 
+  @max 499
+
   def solve(input) do
     matrix = Submarine.parse_input(input) |> IO.inspect(label: "INITIAL")
 
@@ -57,13 +59,18 @@ defmodule AdventOfCode.Year2021.Day15.Task02 do
 
     start_coord |> IO.inspect(label: "START COORD")
 
-    search([start_coord], matrix, costs, scores, goal_coord)
+    queue =
+      Heap.new(fn {_, score_1}, {_, score_2} -> score_1 < score_2 end)
+      |> Heap.push({start_coord, distance(goal_coord, start_coord)})
+
+    search(queue, matrix, costs, scores, goal_coord)
   end
 
   def search([], _risks, _costs, _scores, _goal), do: :LOL
 
   def search(queue, risks, costs, scores, goal) do
-    [current | queue] = Enum.sort_by(queue, fn item -> scores[item] end, :asc)
+    {current, _} = Heap.root(queue)
+    queue = Heap.pop(queue)
 
     case current do
       ^goal ->
@@ -97,7 +104,7 @@ defmodule AdventOfCode.Year2021.Day15.Task02 do
                       {costs, scores, queue}
 
                     false ->
-                      {costs, scores, [neighbour | queue]}
+                      {costs, scores, Heap.push(queue, {neighbour, scores[neighbour]})}
                   end
               end
           end
@@ -113,13 +120,9 @@ defmodule AdventOfCode.Year2021.Day15.Task02 do
   defp inspect_matrix(matrix) when matrix == %{}, do: :lol
 
   defp inspect_matrix(matrix) do
-    x_max =
-      Enum.map(matrix, fn {{x, _y}, _risk} -> x end)
-      |> Enum.max()
+    x_max = @max
 
-    y_max =
-      Enum.map(matrix, fn {{_x, y}, _risk} -> y end)
-      |> Enum.max()
+    y_max = @max
 
     for y <- 0..y_max do
       string =
@@ -145,14 +148,6 @@ defmodule AdventOfCode.Year2021.Day15.Task02 do
   end
 
   def get_neighbours(matrix, {x, y}) do
-    x_max =
-      Enum.map(matrix, fn {{x, _y}, _} -> x end)
-      |> Enum.max()
-
-    y_max =
-      Enum.map(matrix, fn {{_x, y}, _} -> y end)
-      |> Enum.max()
-
     n = {x, y + 1}
     e = {x + 1, y}
     s = {x, y - 1}
@@ -161,10 +156,9 @@ defmodule AdventOfCode.Year2021.Day15.Task02 do
 
     valid_coords =
       Enum.filter(neighbour_coords, fn {x, y} ->
-        x >= 0 and y >= 0 and x <= x_max and y <= y_max
+        x >= 0 and y >= 0 and x <= @max and y <= @max
       end)
 
-    Enum.filter(matrix, fn {octo_coord, _} -> Enum.member?(valid_coords, octo_coord) end)
-    |> Enum.map(fn {coord, _} -> coord end)
+    valid_coords
   end
 end
